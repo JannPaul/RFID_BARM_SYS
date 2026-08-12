@@ -16,13 +16,40 @@ class BookBorrow extends Model
         'remarks',
     ];
 
+
+    protected $casts = [
+        'borrowed_at' => 'datetime',
+        'due_date' => 'datetime',
+        'returned_at' => 'datetime',
+    ];
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | BOOK
+    |--------------------------------------------------------------------------
+    */
+
     public function book()
     {
-        return $this->belongsTo(Book::class);
+        return $this->belongsTo(
+            Book::class,
+            'book_id'
+        );
     }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | BORROWER / STUDENT
+    |--------------------------------------------------------------------------
+    */
 
     public function borrower()
     {
-        return $this->belongsTo(User::class, 'borrower_id');
+        return $this->belongsTo(
+            Student::class,
+            'borrower_id'
+        );
     }
 }

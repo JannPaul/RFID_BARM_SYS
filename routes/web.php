@@ -7,6 +7,8 @@ use App\Http\Controllers\MonitorController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\BookReservationController;
+
+
 /*
 |--------------------------------------------------------------------------
 | Guest Routes
@@ -15,63 +17,81 @@ use App\Http\Controllers\BookReservationController;
 
 Route::middleware('guest')->group(function () {
 
-    Route::get('/', [LoginController::class, 'showLoginForm']);
+    Route::get('/', [
+        LoginController::class,
+        'showLoginForm'
+    ]);
 
-    Route::get('/login', [LoginController::class, 'showLoginForm'])
-        ->name('login');
 
-    Route::post('/login', [LoginController::class, 'login'])
-        ->name('login.authenticate');
+    Route::get('/login', [
+        LoginController::class,
+        'showLoginForm'
+    ])->name('login');
+
+
+    Route::post('/login', [
+        LoginController::class,
+        'login'
+    ])->name('login.authenticate');
+
 });
 
 
 /*
-|--------------------------------------------------------------------------
 | Authenticated Routes
-|--------------------------------------------------------------------------
 */
 
 Route::middleware('auth')->group(function () {
 
     /*
-    |--------------------------------------------------------------------------
     | Dashboard
-    |--------------------------------------------------------------------------
     */
 
     Route::get('/index', function () {
+
         return view('index');
+
     })->name('index');
 
+
     Route::get('/dashboard', function () {
+
         return view('index');
+
     })->name('dashboard');
 
 
     /*
-    |--------------------------------------------------------------------------
     | Attendance
-    |--------------------------------------------------------------------------
     */
 
-    Route::get('/attendance/status', [AttendanceController::class, 'status'])
-        ->name('attendance.status');
+    Route::get('/attendance/status', [
+        AttendanceController::class,
+        'status'
+    ])->name('attendance.status');
 
-    Route::post('/attendance/clock-in', [AttendanceController::class, 'clockIn'])
-        ->name('attendance.clockIn');
 
-    Route::post('/attendance/clock-out', [AttendanceController::class, 'clockOut'])
-        ->name('attendance.clockOut');
+    Route::post('/attendance/clock-in', [
+        AttendanceController::class,
+        'clockIn'
+    ])->name('attendance.clockIn');
+
+
+    Route::post('/attendance/clock-out', [
+        AttendanceController::class,
+        'clockOut'
+    ])->name('attendance.clockOut');
 
 
     /*
-    |--------------------------------------------------------------------------
     | Logout
-    |--------------------------------------------------------------------------
     */
 
-    Route::post('/logout', [LoginController::class, 'logout'])
-        ->name('logout');
+    Route::post('/logout', [
+        LoginController::class,
+        'logout'
+    ])->name('logout');
+
 });
 
 
@@ -81,8 +101,10 @@ Route::middleware('auth')->group(function () {
 |--------------------------------------------------------------------------
 */
 
-Route::get('/monitor', [MonitorController::class, 'monitor'])
-    ->name('monitor');
+Route::get('/monitor', [
+    MonitorController::class,
+    'monitor'
+])->name('monitor');
 
 
 /*
@@ -91,11 +113,35 @@ Route::get('/monitor', [MonitorController::class, 'monitor'])
 |--------------------------------------------------------------------------
 */
 
-Route::post('/borrow', [MonitorController::class, 'enterBorrow'])
-    ->name('borrow.enter');
+/*
+ * Keep this if MonitorController::enterBorrow()
+ * is still being used by your monitor page.
+ */
+Route::post('/borrow', [
+    MonitorController::class,
+    'enterBorrow'
+])->name('borrow.enter');
 
-Route::get('/borrow', [MonitorController::class, 'borrow'])
-    ->name('borrow');
+
+/*
+ * Borrow kiosk page.
+ *
+ * IMPORTANT:
+ * This sends $books to borrow.blade.php.
+ */
+Route::get('/borrow', [
+    BookController::class,
+    'borrowForm'
+])->name('borrow');
+
+
+/*
+ * Confirm borrowing.
+ */
+Route::post('/borrow/confirm', [
+    BookController::class,
+    'storeBorrow'
+])->name('borrow.store');
 
 
 /*
@@ -104,11 +150,16 @@ Route::get('/borrow', [MonitorController::class, 'borrow'])
 |--------------------------------------------------------------------------
 */
 
-Route::post('/return', [MonitorController::class, 'enterReturn'])
-    ->name('return.enter');
+Route::post('/return', [
+    MonitorController::class,
+    'enterReturn'
+])->name('return.enter');
 
-Route::get('/return', [MonitorController::class, 'return'])
-    ->name('return');
+
+Route::get('/return', [
+    MonitorController::class,
+    'return'
+])->name('return');
 
 
 /*
@@ -117,51 +168,66 @@ Route::get('/return', [MonitorController::class, 'return'])
 |--------------------------------------------------------------------------
 */
 
-Route::get('/reserve', [MonitorController::class, 'reserve'])
-    ->name('reserve');
-
-    /*
-|--------------------------------------------------------------------------
-Book
-|--------------------------------------------------------------------------
-*/
-    Route::middleware('auth')->group(function () {
-
-    Route::get('/books', [BookController::class, 'index'])
-        ->name('book');
-
-    Route::post('/books', [BookController::class, 'store'])
-        ->name('books.store');
-
-    Route::put('/books/{book}', [BookController::class, 'update'])
-        ->name('books.update');
-
-    Route::delete('/books/{book}', [BookController::class, 'destroy'])
-        ->name('books.destroy');
-
-});
-
-   /*
-|--------------------------------------------------------------------------
-Book Reservation
-|--------------------------------------------------------------------------
-*/
-
 /*
-|--------------------------------------------------------------------------
-| STUDENT BOOK RESERVATION
-|--------------------------------------------------------------------------
-*/
-
+ * Database-connected reservation page.
+ */
 Route::get('/reserve', [
     BookReservationController::class,
     'create'
 ])->name('reserve');
 
+
 Route::post('/reserve', [
     BookReservationController::class,
     'store'
 ])->name('reserve.store');
+
+
+/*
+|--------------------------------------------------------------------------
+| Book
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth')->group(function () {
+
+    Route::get('/books', [
+        BookController::class,
+        'index'
+    ])->name('book');
+
+
+    Route::post('/books', [
+        BookController::class,
+        'store'
+    ])->name('books.store');
+
+
+    Route::put('/books/{book}', [
+        BookController::class,
+        'update'
+    ])->name('books.update');
+
+
+    Route::delete('/books/{book}', [
+        BookController::class,
+        'destroy'
+    ])->name('books.destroy');
+
+});
+
+
+/*
+|--------------------------------------------------------------------------
+| Book Reservation
+|--------------------------------------------------------------------------
+*/
+
+
+/*
+|--------------------------------------------------------------------------
+| STUDENT BOOK RESERVATION
+|--------------------------------------------------------------------------
 
 
 /*
@@ -173,14 +239,34 @@ Route::post('/reserve', [
 Route::middleware('auth')->group(function () {
 
     /*
-    |--------------------------------------------------------------------------
-    | BOOK BORROW
-    |--------------------------------------------------------------------------
-    */
+|--------------------------------------------------------------------------
+| Borrow
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/borrow', [
+    BookController::class,
+    'borrowForm'
+])->name('borrow');
+
+
+Route::post('/borrow', [
+    BookController::class,
+    'storeBorrow'
+])->name('borrow.store');
+
+
+/*
+|--------------------------------------------------------------------------
+| BOOK BORROW
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth')->group(function () {
 
     Route::get('/bookborrow', [
         BookController::class,
-        'borrow'
+        'borrowMonitoring'
     ])->name('bookborrow');
 
 
@@ -188,6 +274,8 @@ Route::middleware('auth')->group(function () {
         BookController::class,
         'returnBook'
     ])->name('bookborrow.return');
+
+});
 
 
     /*

@@ -3,7 +3,7 @@
         <ul class="metismenu" id="menu">
             <li class="nav-label">{{Session::get('session_user_type')}} - {{Session::get('session_name')}}</li>
             <li>
-                <a href="" aria-expanded="false">
+                <a href="{{ route('index') }}"aria-expanded="false">
                     <i class="fa fa-tachometer menu-icon"></i><span class="nav-text">Dashboard</span>
                 </a>
             </li>
