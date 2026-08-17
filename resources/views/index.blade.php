@@ -7,7 +7,6 @@
 >
 
 <style>
-
     .dashboard-panel {
         height: 100%;
         border: none;
@@ -17,78 +16,6 @@
 
     .dashboard-panel .card-body {
         padding: 25px;
-    }
-
-    .attendance-box {
-        min-height: 185px;
-        background: linear-gradient(135deg, #ffffff, #f8f9fa);
-        border-left: 6px solid #7571f9;
-    }
-
-    .attendance-icon {
-        width: 65px;
-        height: 65px;
-        border-radius: 50%;
-        background-color: rgba(117, 113, 249, 0.12);
-        color: #7571f9;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 30px;
-        margin-right: 18px;
-        flex-shrink: 0;
-    }
-
-    .attendance-title {
-        color: #333;
-        font-size: 21px;
-        font-weight: 700;
-        margin-bottom: 6px;
-    }
-
-    #attendance-msg {
-        color: #6c757d;
-        font-size: 15px;
-        margin-bottom: 0;
-    }
-
-    #attendance-time {
-        color: #333;
-        font-size: 15px;
-        font-weight: 600;
-        margin-top: 7px;
-        margin-bottom: 0;
-    }
-
-    .attendance-btn {
-        min-width: 145px;
-        min-height: 50px;
-        padding: 10px 22px;
-        border: none;
-        border-radius: 8px;
-        font-size: 16px;
-        font-weight: 700;
-    }
-
-    .clock-box {
-        min-height: 185px;
-        background: linear-gradient(135deg, #7571f9, #5c57d8);
-        color: white;
-    }
-
-    .clock-icon {
-        font-size: 32px;
-        margin-bottom: 10px;
-    }
-
-    #liveClock {
-        font-size: 32px;
-        font-weight: 700;
-        margin-bottom: 6px;
-    }
-
-    #liveDate {
-        font-size: 14px;
     }
 
     .summary-card {
@@ -250,35 +177,23 @@
     }
 
     @media (max-width: 991px) {
-
-        .attendance-content {
-            flex-direction: column;
-            text-align: center;
-        }
-
-        .attendance-icon {
-            margin: 0 auto 15px;
-        }
-
-        .attendance-action {
-            margin-top: 20px;
-            width: 100%;
-        }
-
-        .attendance-btn {
-            width: 100%;
-        }
-
         .chart-container {
             height: 300px;
         }
-    }
 
+        .trend-chart-container {
+            height: 280px;
+        }
+    }
 </style>
 
 @include('layouts.top_navbar')
 @include('layouts.left_sidebar')
 
+
+<!--**********************************
+    Content body start
+***********************************-->
 
 <div class="content-body">
 
@@ -325,92 +240,13 @@
         @endif
 
 
-        <!-- ATTENDANCE + CLOCK -->
-
-        <div class="row mb-4">
-
-            <div class="col-lg-8 col-md-12 mb-3">
-
-                <div class="card dashboard-panel attendance-box shadow-sm">
-
-                    <div class="card-body">
-
-                        <div class="d-flex align-items-center justify-content-between attendance-content">
-
-                            <div class="d-flex align-items-center attendance-content">
-
-                                <div class="attendance-icon">
-                                    <i class="fa fa-user-check"></i>
-                                </div>
-
-                                <div>
-
-                                    <h4 class="attendance-title">
-                                        Daily Attendance
-                                    </h4>
-
-                                    <p id="attendance-msg">
-                                        Loading current status...
-                                    </p>
-
-                                    <p id="attendance-time"></p>
-
-                                </div>
-
-                            </div>
-
-                            <div class="attendance-action">
-
-                                <button
-                                    type="button"
-                                    id="attendance-btn"
-                                    class="btn attendance-btn"
-                                    onclick="toggleAttendance()"
-                                    style="display:none;"
-                                >
-                                </button>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <div class="col-lg-4 col-md-12 mb-3">
-
-                <div class="card dashboard-panel clock-box shadow-sm">
-
-                    <div class="card-body text-center d-flex flex-column justify-content-center">
-
-                        <div class="clock-icon">
-                            <i class="fa fa-clock-o"></i>
-                        </div>
-
-                        <h2 id="liveClock">
-                            00:00:00
-                        </h2>
-
-                        <div id="liveDate">
-                            Loading date...
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- SUMMARY CARDS -->
+        <!-- ==================================================
+             SUMMARY CARDS
+        =================================================== -->
 
         <div class="row">
+
+            <!-- BORROWED BOOKS -->
 
             <div class="col-lg-3 col-sm-6 mb-3">
 
@@ -445,6 +281,8 @@
             </div>
 
 
+            <!-- RETURNED BOOKS -->
+
             <div class="col-lg-3 col-sm-6 mb-3">
 
                 <div class="card gradient-2 summary-card">
@@ -478,6 +316,8 @@
             </div>
 
 
+            <!-- CURRENTLY BORROWED -->
+
             <div class="col-lg-3 col-sm-6 mb-3">
 
                 <div class="card gradient-3 summary-card">
@@ -510,6 +350,8 @@
 
             </div>
 
+
+            <!-- OVERDUE BOOKS -->
 
             <div class="col-lg-3 col-sm-6 mb-3">
 
@@ -546,7 +388,9 @@
         </div>
 
 
-        <!-- BORROWING ANALYTICS -->
+        <!-- ==================================================
+             BORROWING ANALYTICS TITLE
+        =================================================== -->
 
         <div class="row mt-4 mb-3">
 
@@ -568,9 +412,13 @@
         </div>
 
 
-        <!-- ANALYTICS CARDS -->
+        <!-- ==================================================
+             ANALYTICS CARDS
+        =================================================== -->
 
         <div class="row">
+
+            <!-- TOTAL BORROWINGS -->
 
             <div class="col-xl-3 col-md-6 mb-4">
 
@@ -605,6 +453,8 @@
             </div>
 
 
+            <!-- UNIQUE BORROWERS -->
+
             <div class="col-xl-3 col-md-6 mb-4">
 
                 <div class="card analytics-card shadow-sm">
@@ -637,6 +487,8 @@
 
             </div>
 
+
+            <!-- STUDENT BORROWINGS -->
 
             <div class="col-xl-3 col-md-6 mb-4">
 
@@ -674,6 +526,8 @@
 
             </div>
 
+
+            <!-- PERSONNEL BORROWINGS -->
 
             <div class="col-xl-3 col-md-6 mb-4">
 
@@ -714,9 +568,13 @@
         </div>
 
 
-        <!-- TOP BORROWER ANALYTICS -->
+        <!-- ==================================================
+             TOP BORROWER ANALYTICS
+        =================================================== -->
 
         <div class="row">
+
+            <!-- MOST FREQUENT BORROWERS -->
 
             <div class="col-lg-8 mb-4">
 
@@ -762,6 +620,8 @@
 
             </div>
 
+
+            <!-- TOP BORROWER -->
 
             <div class="col-lg-4 mb-4">
 
@@ -842,9 +702,13 @@
         </div>
 
 
-        <!-- 7 DAY CHART + MOST BORROWED BOOK -->
+        <!-- ==================================================
+             7 DAY CHART + MOST BORROWED BOOK
+        =================================================== -->
 
         <div class="row">
+
+            <!-- 7 DAY BORROWING ACTIVITY -->
 
             <div class="col-lg-8 mb-4">
 
@@ -871,6 +735,8 @@
 
             </div>
 
+
+            <!-- MOST BORROWED BOOKS -->
 
             <div class="col-lg-4 mb-4">
 
@@ -936,7 +802,9 @@
         </div>
 
 
-        <!-- BORROWING LEADERBOARD -->
+        <!-- ==================================================
+             BORROWING LEADERBOARD
+        =================================================== -->
 
         <div class="row">
 
@@ -955,6 +823,7 @@
                             Students and personnel with the highest borrowing activity.
                         </p>
 
+
                         <div class="table-responsive">
 
                             <table class="table table-hover borrower-table">
@@ -962,14 +831,21 @@
                                 <thead>
 
                                     <tr>
+
                                         <th>Rank</th>
+
                                         <th>Borrower</th>
+
                                         <th>Type</th>
+
                                         <th>Total Borrowed</th>
+
                                         <th>Activity</th>
+
                                     </tr>
 
                                 </thead>
+
 
                                 <tbody>
 
@@ -978,6 +854,8 @@
                                         @forelse($topBorrowers as $index => $borrower)
 
                                             <tr>
+
+                                                <!-- RANK -->
 
                                                 <td>
 
@@ -1010,6 +888,8 @@
                                                 </td>
 
 
+                                                <!-- BORROWER -->
+
                                                 <td>
 
                                                     <strong>
@@ -1018,6 +898,8 @@
 
                                                 </td>
 
+
+                                                <!-- TYPE -->
 
                                                 <td>
 
@@ -1038,6 +920,8 @@
                                                 </td>
 
 
+                                                <!-- TOTAL BORROWED -->
+
                                                 <td>
 
                                                     <strong>
@@ -1046,6 +930,8 @@
 
                                                 </td>
 
+
+                                                <!-- ACTIVITY -->
 
                                                 <td>
 
@@ -1131,59 +1017,28 @@
 </div>
 
 
+<!--**********************************
+    Content body end
+***********************************-->
+
+
 @include('layouts.footer')
 
+
+<!-- Chart.js -->
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 
 <script>
 
-    let attendanceStatus = 'clocked_out';
-
-
     /*
     |--------------------------------------------------------------------------
-    | Live Clock
-    |--------------------------------------------------------------------------
-    */
-
-    function updateClock() {
-
-        const now = new Date();
-
-        document.getElementById('liveClock').textContent =
-            now.toLocaleTimeString('en-US', {
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: true
-            });
-
-        document.getElementById('liveDate').textContent =
-            now.toLocaleDateString('en-US', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
-    }
-
-
-    updateClock();
-
-    setInterval(updateClock, 1000);
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Load
+    | LOAD DASHBOARD CHARTS
     |--------------------------------------------------------------------------
     */
 
     document.addEventListener('DOMContentLoaded', function () {
-
-        checkAttendanceStatus();
 
         createBorrowerChart();
 
@@ -1194,219 +1049,7 @@
 
     /*
     |--------------------------------------------------------------------------
-    | Attendance Time
-    |--------------------------------------------------------------------------
-    */
-
-    function formatAttendanceTime(value) {
-
-        if (!value) {
-            return '';
-        }
-
-        return new Date(value).toLocaleTimeString('en-US', {
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            hour12: true
-        });
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Attendance Status
-    |--------------------------------------------------------------------------
-    */
-
-    function checkAttendanceStatus() {
-
-        fetch("{{ route('attendance.status') }}", {
-
-            method: 'GET',
-
-            headers: {
-                'Accept': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-
-        })
-
-        .then(response => response.json())
-
-        .then(data => {
-
-            const button =
-                document.getElementById('attendance-btn');
-
-            const message =
-                document.getElementById('attendance-msg');
-
-            const time =
-                document.getElementById('attendance-time');
-
-
-            attendanceStatus = data.status;
-
-            button.disabled = false;
-
-            button.style.display = 'inline-block';
-
-            time.textContent = '';
-
-
-            if (data.status === 'clocked_in') {
-
-                message.textContent =
-                    'You are currently checked in.';
-
-                time.textContent =
-                    'Clocked in at: ' +
-                    formatAttendanceTime(data.time_in);
-
-                button.textContent =
-                    'Clock Out';
-
-                button.className =
-                    'btn btn-danger attendance-btn';
-
-            }
-
-            else if (data.status === 'complete') {
-
-                message.textContent =
-                    'Your attendance is complete for today.';
-
-                time.textContent =
-                    'Time in: ' +
-                    formatAttendanceTime(data.time_in) +
-                    ' | Time out: ' +
-                    formatAttendanceTime(data.time_out);
-
-                button.style.display =
-                    'none';
-
-            }
-
-            else {
-
-                message.textContent =
-                    "You haven't checked in today.";
-
-                button.textContent =
-                    'Clock In';
-
-                button.className =
-                    'btn btn-success attendance-btn';
-
-            }
-
-        })
-
-        .catch(error => {
-
-            console.error(error);
-
-            document.getElementById(
-                'attendance-msg'
-            ).textContent =
-                'Unable to load attendance status.';
-
-        });
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Clock In / Clock Out
-    |--------------------------------------------------------------------------
-    */
-
-    function toggleAttendance() {
-
-        const button =
-            document.getElementById('attendance-btn');
-
-        button.disabled = true;
-
-        let url;
-
-
-        if (attendanceStatus === 'clocked_in') {
-
-            url =
-                "{{ route('attendance.clockOut') }}";
-
-        }
-
-        else {
-
-            url =
-                "{{ route('attendance.clockIn') }}";
-
-        }
-
-
-        fetch(url, {
-
-            method: 'POST',
-
-            headers: {
-
-                'Content-Type':
-                    'application/json',
-
-                'Accept':
-                    'application/json',
-
-                'X-Requested-With':
-                    'XMLHttpRequest',
-
-                'X-CSRF-TOKEN':
-                    "{{ csrf_token() }}"
-
-            }
-
-        })
-
-        .then(async response => {
-
-            const data =
-                await response.json();
-
-            if (!response.ok) {
-
-                throw new Error(
-                    data.message ||
-                    'Attendance request failed.'
-                );
-
-            }
-
-            return data;
-
-        })
-
-        .then(() => {
-
-            checkAttendanceStatus();
-
-        })
-
-        .catch(error => {
-
-            alert(error.message);
-
-            button.disabled = false;
-
-        });
-
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Top Borrowers Chart
+    | TOP BORROWERS CHART
     |--------------------------------------------------------------------------
     */
 
@@ -1418,6 +1061,7 @@
         if (!canvas) {
             return;
         }
+
 
         const names =
             @json($borrowerNames ?? []);
@@ -1518,7 +1162,7 @@
 
     /*
     |--------------------------------------------------------------------------
-    | Seven Day Chart
+    | SEVEN DAY BORROWING CHART
     |--------------------------------------------------------------------------
     */
 

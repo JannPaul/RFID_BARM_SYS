@@ -1,15 +1,18 @@
 <?php
 
-
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Attendance extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
-        'user_id',
+        'attendable_id',
+        'attendable_type',
         'date',
         'time_in',
         'time_out',
@@ -21,8 +24,8 @@ class Attendance extends Model
         'time_out' => 'datetime',
     ];
 
-    public function user(): BelongsTo
+    public function attendable(): MorphTo
     {
-        return $this->belongsTo(User::class);
+        return $this->morphTo();
     }
 }

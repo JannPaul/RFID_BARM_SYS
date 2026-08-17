@@ -7,11 +7,13 @@ use App\Http\Controllers\MonitorController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\BookReservationController;
-
+use App\Http\Controllers\UserManagementController;
+use App\Http\Controllers\StudentPersonnelController;
+use App\Http\Controllers\StudentPersonnelManagementController;
 
 /*
 |--------------------------------------------------------------------------
-| Guest Routes
+| GUEST ROUTES
 |--------------------------------------------------------------------------
 */
 
@@ -22,12 +24,10 @@ Route::middleware('guest')->group(function () {
         'showLoginForm'
     ]);
 
-
     Route::get('/login', [
         LoginController::class,
         'showLoginForm'
     ])->name('login');
-
 
     Route::post('/login', [
         LoginController::class,
@@ -38,13 +38,17 @@ Route::middleware('guest')->group(function () {
 
 
 /*
-| Authenticated Routes
+|--------------------------------------------------------------------------
+| AUTHENTICATED ROUTES
+|--------------------------------------------------------------------------
 */
 
 Route::middleware('auth')->group(function () {
 
     /*
-    | Dashboard
+    |--------------------------------------------------------------------------
+    | DASHBOARD
+    |--------------------------------------------------------------------------
     */
 
     Route::get('/index', function () {
@@ -61,135 +65,136 @@ Route::middleware('auth')->group(function () {
     })->name('dashboard');
 
 
-    /*
-    | Attendance
+     /*
+    |--------------------------------------------------------------------------
+    | PROFILE
+    |--------------------------------------------------------------------------
     */
 
-    Route::get('/attendance/status', [
-        AttendanceController::class,
-        'status'
-    ])->name('attendance.status');
+    Route::get('/profile', function () {
 
+        return view('profile');
 
-    Route::post('/attendance/clock-in', [
-        AttendanceController::class,
-        'clockIn'
-    ])->name('attendance.clockIn');
-
-
-    Route::post('/attendance/clock-out', [
-        AttendanceController::class,
-        'clockOut'
-    ])->name('attendance.clockOut');
+    })->name('profile');
 
 
     /*
-    | Logout
+|--------------------------------------------------------------------------
+| STUDENT & PERSONNEL MANAGEMENT
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/student-personnel-management', [
+    StudentPersonnelManagementController::class,
+    'index'
+])->name('studentpersonnel.management');
+
+
+/*
+|--------------------------------------------------------------------------
+| STUDENT CRUD
+|--------------------------------------------------------------------------
+*/
+
+Route::post('/student-personnel-management/students', [
+    StudentPersonnelManagementController::class,
+    'storeStudent'
+])->name('management.students.store');
+
+
+Route::put('/student-personnel-management/students/{student}', [
+    StudentPersonnelManagementController::class,
+    'updateStudent'
+])->name('management.students.update');
+
+
+Route::delete('/student-personnel-management/students/{student}', [
+    StudentPersonnelManagementController::class,
+    'destroyStudent'
+])->name('management.students.destroy');
+
+
+/*
+|--------------------------------------------------------------------------
+| PERSONNEL CRUD
+|--------------------------------------------------------------------------
+*/
+
+Route::post('/student-personnel-management/personnel', [
+    StudentPersonnelManagementController::class,
+    'storePersonnel'
+])->name('management.personnel.store');
+
+
+Route::put('/student-personnel-management/personnel/{personnel}', [
+    StudentPersonnelManagementController::class,
+    'updatePersonnel'
+])->name('management.personnel.update');
+
+
+Route::delete('/student-personnel-management/personnel/{personnel}', [
+    StudentPersonnelManagementController::class,
+    'destroyPersonnel'
+])->name('management.personnel.destroy');
+    /*
+    |--------------------------------------------------------------------------
+    | USER MANAGEMENT
+    |--------------------------------------------------------------------------
     */
 
-    Route::post('/logout', [
-        LoginController::class,
-        'logout'
-    ])->name('logout');
-
-});
+    Route::get('/user-management', [
+        UserManagementController::class,
+        'index'
+    ])->name('user.management');
 
 
-/*
-|--------------------------------------------------------------------------
-| Monitor / Kiosk
-|--------------------------------------------------------------------------
-*/
-
-Route::get('/monitor', [
-    MonitorController::class,
-    'monitor'
-])->name('monitor');
+    Route::post('/user-management/staff', [
+        UserManagementController::class,
+        'store'
+    ])->name('staff.store');
 
 
-/*
-|--------------------------------------------------------------------------
-| Borrow
-|--------------------------------------------------------------------------
-*/
-
-/*
- * Keep this if MonitorController::enterBorrow()
- * is still being used by your monitor page.
- */
-Route::post('/borrow', [
-    MonitorController::class,
-    'enterBorrow'
-])->name('borrow.enter');
+    Route::put('/user-management/staff/{user}', [
+        UserManagementController::class,
+        'update'
+    ])->name('staff.update');
 
 
-/*
- * Borrow kiosk page.
- *
- * IMPORTANT:
- * This sends $books to borrow.blade.php.
- */
-Route::get('/borrow', [
-    BookController::class,
-    'borrowForm'
-])->name('borrow');
+    Route::delete('/user-management/staff/{user}', [
+        UserManagementController::class,
+        'destroy'
+    ])->name('staff.destroy');
 
 
-/*
- * Confirm borrowing.
- */
-Route::post('/borrow/confirm', [
-    BookController::class,
-    'storeBorrow'
-])->name('borrow.store');
+    /*
+    |--------------------------------------------------------------------------
+    | STUDENT MONITORING
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/students', [
+        StudentPersonnelController::class,
+        'students'
+    ])->name('students.monitoring');
 
 
-/*
-|--------------------------------------------------------------------------
-| Return
-|--------------------------------------------------------------------------
-*/
+    /*
+    |--------------------------------------------------------------------------
+    | PERSONNEL MONITORING
+    |--------------------------------------------------------------------------
+    */
 
-Route::post('/return', [
-    MonitorController::class,
-    'enterReturn'
-])->name('return.enter');
-
-
-Route::get('/return', [
-    MonitorController::class,
-    'return'
-])->name('return');
+    Route::get('/personnel', [
+        StudentPersonnelController::class,
+        'personnel'
+    ])->name('personnel.monitoring');
 
 
-/*
-|--------------------------------------------------------------------------
-| Reserve
-|--------------------------------------------------------------------------
-*/
-
-/*
- * Database-connected reservation page.
- */
-Route::get('/reserve', [
-    BookReservationController::class,
-    'create'
-])->name('reserve');
-
-
-Route::post('/reserve', [
-    BookReservationController::class,
-    'store'
-])->name('reserve.store');
-
-
-/*
-|--------------------------------------------------------------------------
-| Book
-|--------------------------------------------------------------------------
-*/
-
-Route::middleware('auth')->group(function () {
+    /*
+    |--------------------------------------------------------------------------
+    | BOOK MANAGEMENT
+    |--------------------------------------------------------------------------
+    */
 
     Route::get('/books', [
         BookController::class,
@@ -214,55 +219,12 @@ Route::middleware('auth')->group(function () {
         'destroy'
     ])->name('books.destroy');
 
-});
-
-
-/*
-|--------------------------------------------------------------------------
-| Book Reservation
-|--------------------------------------------------------------------------
-*/
-
-
-/*
-|--------------------------------------------------------------------------
-| STUDENT BOOK RESERVATION
-|--------------------------------------------------------------------------
-
-
-/*
-|--------------------------------------------------------------------------
-| AUTHENTICATED / ADMIN ROUTES
-|--------------------------------------------------------------------------
-*/
-
-Route::middleware('auth')->group(function () {
 
     /*
-|--------------------------------------------------------------------------
-| Borrow
-|--------------------------------------------------------------------------
-*/
-
-Route::get('/borrow', [
-    BookController::class,
-    'borrowForm'
-])->name('borrow');
-
-
-Route::post('/borrow', [
-    BookController::class,
-    'storeBorrow'
-])->name('borrow.store');
-
-
-/*
-|--------------------------------------------------------------------------
-| BOOK BORROW
-|--------------------------------------------------------------------------
-*/
-
-Route::middleware('auth')->group(function () {
+    |--------------------------------------------------------------------------
+    | BOOK BORROW MONITORING
+    |--------------------------------------------------------------------------
+    */
 
     Route::get('/bookborrow', [
         BookController::class,
@@ -274,8 +236,6 @@ Route::middleware('auth')->group(function () {
         BookController::class,
         'returnBook'
     ])->name('bookborrow.return');
-
-});
 
 
     /*
@@ -307,4 +267,153 @@ Route::middleware('auth')->group(function () {
         'cancel'
     ])->name('reserve.cancel');
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | LOGOUT
+    |--------------------------------------------------------------------------
+    */
+
+    Route::post('/logout', [
+        LoginController::class,
+        'logout'
+    ])->name('logout');
+
 });
+
+
+/*
+|--------------------------------------------------------------------------
+| PUBLIC KIOSK
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/monitor', [
+    MonitorController::class,
+    'monitor'
+])->name('monitor');
+
+
+/*
+|--------------------------------------------------------------------------
+| RFID ATTENDANCE
+|--------------------------------------------------------------------------
+|
+| IMPORTANT:
+| Keep this OUTSIDE Route::middleware('auth')
+| because the RFID kiosk needs to access it without logging in.
+|
+*/
+
+Route::post('/attendance/scan', [
+    AttendanceController::class,
+    'scanRfid'
+])->name('attendance.scan');
+
+
+/*
+|--------------------------------------------------------------------------
+| BORROW KIOSK
+|--------------------------------------------------------------------------
+*/
+
+Route::post('/borrow-enter', function () {
+
+    session([
+        'borrow_kiosk_access' => true
+    ]);
+
+    return redirect()
+        ->route('borrow.kiosk');
+
+})->name('borrow.enter');
+
+
+Route::get('/borrowkiosk', function () {
+
+    /*
+     * Prevent users from opening the borrow kiosk directly.
+     */
+
+    if (!session('borrow_kiosk_access')) {
+
+        return redirect()
+            ->route('monitor')
+            ->with(
+                'error',
+                'Please click the BORROW button first.'
+            );
+    }
+
+
+    /*
+     * Load the borrowing form from BookController.
+     */
+
+    return app(BookController::class)
+        ->borrowForm();
+
+})->name('borrow.kiosk');
+
+
+Route::post('/borrowkiosk/confirm', [
+    BookController::class,
+    'storeBorrow'
+])->name('borrow.store');
+
+
+Route::get('/borrowkiosk/exit', function () {
+
+    /*
+     * Remove kiosk access session.
+     */
+
+    session()->forget(
+        'borrow_kiosk_access'
+    );
+
+
+    /*
+     * Return to main monitor.
+     */
+
+    return redirect()
+        ->route('monitor');
+
+})->name('borrow.exit');
+
+
+/*
+|--------------------------------------------------------------------------
+| RETURN KIOSK
+|--------------------------------------------------------------------------
+*/
+
+Route::post('/return', [
+    MonitorController::class,
+    'enterReturn'
+])->name('return.enter');
+
+
+Route::get('/return', [
+    MonitorController::class,
+    'return'
+])->name('return');
+
+
+/*
+|--------------------------------------------------------------------------
+| RESERVE KIOSK
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/reserve', [
+    BookReservationController::class,
+    'create'
+])->name('reserve');
+
+
+Route::post('/reserve', [
+    BookReservationController::class,
+    'store'
+])->name('reserve.store');

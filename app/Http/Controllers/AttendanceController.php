@@ -2,155 +2,318 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Attendance;
+use App\Models\Student;
+use App\Models\Personnel;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 class AttendanceController extends Controller
 {
     /**
-     * Get today's attendance status.
-     */
-    public function status()
-{
-    $user = auth()->user();
-
-    $attendance = Attendance::where('user_id', $user->id)
-        ->whereDate('attendance_date', Carbon::today())
-        ->first();
-
-    /*
-     * No attendance record TODAY.
+     * RFID Scanner
      *
-     * Even if the user clocked in/out yesterday,
-     * today's button starts again as Clock In.
+     * First scan  = Clock In
+     * Second scan = Clock Out
+     * Third scan  = New Clock In
      */
-    if (!$attendance) {
-        return response()->json([
-            'status' => 'clocked_out',
-            'time_in' => null,
-            'time_out' => null,
-        ]);
-    }
-
-    /*
-     * Clocked in but not clocked out.
-     */
-    if ($attendance->time_in && !$attendance->time_out) {
-        return response()->json([
-            'status' => 'clocked_in',
-            'time_in' => $attendance->time_in,
-            'time_out' => null,
-        ]);
-    }
-
-    /*
-     * Finished attendance TODAY.
-     */
-    if ($attendance->time_in && $attendance->time_out) {
-        return response()->json([
-            'status' => 'complete',
-            'time_in' => $attendance->time_in,
-            'time_out' => $attendance->time_out,
-        ]);
-    }
-
-    return response()->json([
-        'status' => 'clocked_out',
-        'time_in' => null,
-        'time_out' => null,
-    ]);
-}
-
-
-    /**
-     * Clock In.
-     */
-    public function clockIn()
+    public function scanRfid(Request $request)
     {
-        $user = Auth::user();
+        /*
+        |--------------------------------------------------------------------------
+        | Validate RFID
+        |--------------------------------------------------------------------------
+        */
 
-        if (!$user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'User not authenticated.'
-            ], 401);
+        $request->validate([
+            'rfid_tag_uid' => 'required|string',
+        ]);
+
+        $rfid = trim((string) $request->input('rfid_tag_uid'));
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Search Student
+        |--------------------------------------------------------------------------
+        */
+
+        $person = Student::where(
+            'rfid_tag_uid',
+            $rfid
+        )->first();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | If not Student, search Personnel
+        |--------------------------------------------------------------------------
+        */
+
+        if (!$person) {
+
+            $person = Personnel::where(
+                'rfid_tag_uid',
+                $rfid
+            )->first();
+
         }
 
-        $today = Carbon::today()->toDateString();
 
-        $existing = Attendance::where('user_id', $user->id)
-            ->whereDate('date', $today)
+        /*
+        |--------------------------------------------------------------------------
+        | RFID Not Registered
+        |--------------------------------------------------------------------------
+        */
+
+        if (!$person) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'RFID card is not registered.',
+                'rfid_tag_uid' => $rfid,
+            ], 404);
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Determine Person Type
+        |--------------------------------------------------------------------------
+        */
+
+        $personType = $person instanceof Student
+            ? 'Student'
+            : 'Personnel';
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Find Open Attendance
+        |--------------------------------------------------------------------------
+        |
+        | We use the polymorphic relationship here.
+        |
+        | Because of the morph map:
+        |
+        | Student   = student
+        | Personnel = personnel
+        |
+        */
+
+        $openAttendance = $person
+            ->attendances()
+            ->whereNull('time_out')
+            ->latest('time_in')
             ->first();
 
-        if ($existing) {
+
+        /*
+        |--------------------------------------------------------------------------
+        | CLOCK OUT
+        |--------------------------------------------------------------------------
+        */
+
+        if ($openAttendance) {
+
+            $openAttendance->update([
+                'time_out' => Carbon::now(),
+            ]);
+
+
             return response()->json([
-                'success' => false,
-                'message' => 'You already have an attendance record today.'
-            ], 422);
+                'success' => true,
+
+                'action' => 'clock_out',
+
+                'message' =>
+                    $person->firstname . ' ' .
+                    $person->lastname .
+                    ' clocked out successfully.',
+
+                'person_type' => $personType,
+
+                'person_id' => $person->id,
+
+                'name' =>
+                    $person->firstname . ' ' .
+                    $person->lastname,
+
+                'rfid_tag_uid' =>
+                    $person->rfid_tag_uid,
+
+                /*
+                |--------------------------------------------------------------------------
+                | Student Information
+                |--------------------------------------------------------------------------
+                */
+
+                'student_number' =>
+                    $person instanceof Student
+                        ? $person->student_number
+                        : null,
+
+                'year_level' =>
+                    $person instanceof Student
+                        ? $person->year_level
+                        : null,
+
+                'course_program' =>
+                    $person instanceof Student
+                        ? $person->course_program
+                        : null,
+
+                /*
+                |--------------------------------------------------------------------------
+                | Personnel Information
+                |--------------------------------------------------------------------------
+                */
+
+                'employee_number' =>
+                    $person instanceof Personnel
+                        ? $person->employee_number
+                        : null,
+
+                'department' =>
+                    $person instanceof Personnel
+                        ? $person->department
+                        : null,
+
+                /*
+                |--------------------------------------------------------------------------
+                | Attendance Information
+                |--------------------------------------------------------------------------
+                */
+
+                'attendance_id' =>
+                    $openAttendance->id,
+
+                'date' =>
+                    $openAttendance->date,
+
+                'time_in' =>
+                    $openAttendance->time_in,
+
+                'time_out' =>
+                    $openAttendance->time_out,
+            ]);
+
         }
 
-        $attendance = Attendance::create([
-            'user_id' => $user->id,
-            'date' => $today,
-            'time_in' => Carbon::now(),
-            'time_out' => null,
-        ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | CLOCK IN
+        |--------------------------------------------------------------------------
+        |
+        | DO NOT manually set attendable_id or attendable_type.
+        |
+        | Laravel automatically fills those fields when we use:
+        |
+        | $person->attendances()->create(...)
+        |
+        */
+
+        $attendance = $person
+            ->attendances()
+            ->create([
+
+                'date' =>
+                    Carbon::today()->toDateString(),
+
+                'time_in' =>
+                    Carbon::now(),
+
+                'time_out' =>
+                    null,
+
+            ]);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Return Clock In Response
+        |--------------------------------------------------------------------------
+        */
 
         return response()->json([
             'success' => true,
-            'message' => 'Clocked in successfully.',
-            'status' => 'clocked_in',
-            'time_in' => $attendance->time_in,
-        ]);
-    }
+
+            'action' => 'clock_in',
+
+            'message' =>
+                $person->firstname . ' ' .
+                $person->lastname .
+                ' clocked in successfully.',
+
+            'person_type' => $personType,
+
+            'person_id' => $person->id,
+
+            'name' =>
+                $person->firstname . ' ' .
+                $person->lastname,
+
+            'rfid_tag_uid' =>
+                $person->rfid_tag_uid,
 
 
-    /**
-     * Clock Out.
-     */
-    public function clockOut()
-    {
-        $user = Auth::user();
+            /*
+            |--------------------------------------------------------------------------
+            | Student Information
+            |--------------------------------------------------------------------------
+            */
 
-        if (!$user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'User not authenticated.'
-            ], 401);
-        }
+            'student_number' =>
+                $person instanceof Student
+                    ? $person->student_number
+                    : null,
 
-        $today = Carbon::today()->toDateString();
+            'year_level' =>
+                $person instanceof Student
+                    ? $person->year_level
+                    : null,
 
-        $attendance = Attendance::where('user_id', $user->id)
-            ->whereDate('date', $today)
-            ->first();
+            'course_program' =>
+                $person instanceof Student
+                    ? $person->course_program
+                    : null,
 
-        if (!$attendance) {
-            return response()->json([
-                'success' => false,
-                'message' => 'You need to clock in first.'
-            ], 422);
-        }
 
-        if ($attendance->time_out) {
-            return response()->json([
-                'success' => false,
-                'message' => 'You have already clocked out today.'
-            ], 422);
-        }
+            /*
+            |--------------------------------------------------------------------------
+            | Personnel Information
+            |--------------------------------------------------------------------------
+            */
 
-        $attendance->update([
-            'time_out' => Carbon::now(),
-        ]);
+            'employee_number' =>
+                $person instanceof Personnel
+                    ? $person->employee_number
+                    : null,
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Clocked out successfully.',
-            'status' => 'complete',
-            'time_in' => $attendance->time_in,
-            'time_out' => $attendance->time_out,
+            'department' =>
+                $person instanceof Personnel
+                    ? $person->department
+                    : null,
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Attendance Information
+            |--------------------------------------------------------------------------
+            */
+
+            'attendance_id' =>
+                $attendance->id,
+
+            'date' =>
+                $attendance->date,
+
+            'time_in' =>
+                $attendance->time_in,
+
+            'time_out' =>
+                null,
         ]);
     }
 }

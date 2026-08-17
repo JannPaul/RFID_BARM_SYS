@@ -1,214 +1,573 @@
-<div id="main-wrapper">
-    <!--**********************************
-        Nav header start
-    ***********************************-->
-    <div class="nav-header">
-        <div class="brand-logo">
-            <a href="#">
-                <b class="logo-abbr"><img src="{{asset('assets/images/lclogo.png')}}" alt="lc logo"> </b>
-                {{--<span class="logo-compact"><img src="{{asset('assets/images/logo-compact.png')}}" alt=""></span>--}}
-                <span class="brand-title">
-                <span class="navbar-text custom-title no-hover">RFID-BARM_SYSTEM</span>
-                </span>
-            </a>
+<!--**********************************
+    Nav header start
+***********************************-->
+
+<div class="nav-header">
+
+    <!-- ============================================================
+         BRAND / LOGO - NOT CLICKABLE
+    ============================================================= -->
+
+    <div
+        class="brand-logo"
+        style="
+            cursor: default;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            height: 100%;
+            text-decoration: none;
+        "
+    >
+
+        <!-- LOGO -->
+
+        <img
+            class="logo-abbr"
+            src="{{ asset('assets/images/logo.png') }}"
+            alt="RFID-BARM Logo"
+            style="
+                pointer-events: none;
+            "
+        >
+
+
+        <!-- BRAND NAME -->
+
+        <span
+            class="brand-title"
+            style="
+                font-size: 26px;
+                font-weight: 700;
+                letter-spacing: 0.5px;
+                line-height: 1;
+                white-space: nowrap;
+                color: #000000;
+                cursor: default;
+                pointer-events: none;
+                margin-left: 30px;
+            "
+        >
+            RFID-BARM
+        </span>
+
+    </div>
+
+
+    <!-- ============================================================
+         SIDEBAR TOGGLE
+    ============================================================= -->
+
+    <div class="nav-control">
+
+        <div class="hamburger">
+
+            <span class="line"></span>
+            <span class="line"></span>
+            <span class="line"></span>
 
         </div>
+
     </div>
-    <!--**********************************
-        Nav header end
-    ***********************************-->
 
-    <!--**********************************
-        Header start
-    ***********************************-->
-    <div class="header">
-        <div class="header-content clearfix">
+</div>
 
-            <div class="nav-control">
-                <div class="hamburger">
-                    <span class="toggle-icon"><i class="icon-menu"></i></span>
+<!--**********************************
+    Nav header end
+***********************************-->
+
+
+
+<!--**********************************
+    Header start
+***********************************-->
+
+<div class="header">
+
+    <div class="header-content">
+
+        <nav class="navbar navbar-expand">
+
+            <div class="collapse navbar-collapse justify-content-between">
+
+
+                <!-- ====================================================
+                     LEFT SIDE
+                ===================================================== -->
+
+                <div class="header-left">
+
+                    <!-- Add other header items here if needed -->
+
                 </div>
-            </div>
-            {{-- <div class="header-left">
-                <div class="input-group icons">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text bg-transparent border-0 pr-2 pr-sm-3" id="basic-addon1"><i
-                                class="mdi mdi-magnify"></i></span>
-                    </div>
-                    <input type="search" class="form-control" placeholder="Search Dashboard"
-                        aria-label="Search Dashboard">
-                    <div class="drop-down animated flipInX d-md-none">
-                        <form action="#">
-                            <input type="text" class="form-control" placeholder="Search">
-                        </form>
-                    </div>
-                </div>
-            </div> --}}
-            <div class="header-right">
-                <ul class="clearfix">
-                    {{-- <li class="icons dropdown"><a href="javascript:void(0)" data-toggle="dropdown">
-                            <i class="mdi mdi-email-outline"></i>
-                            <span class="badge badge-pill gradient-1">3</span>
-                        </a>
-                        <div class="drop-down animated fadeIn dropdown-menu">
-                            <div class="dropdown-content-heading d-flex justify-content-between">
-                                <span class="">3 New Messages</span>
-                                <a href="javascript:void()" class="d-inline-block">
-                                    <span class="badge badge-pill gradient-1">3</span>
+
+
+                <!-- ====================================================
+                     RIGHT SIDE
+                ===================================================== -->
+
+                <ul class="navbar-nav header-right">
+
+
+                    @auth
+
+
+                        <!-- =============================================
+                             PROFILE DROPDOWN
+                        ============================================== -->
+
+                        <li class="nav-item dropdown header-profile">
+
+
+                            <!-- =========================================
+                                 PROFILE BUTTON
+                            ========================================== -->
+
+                            <a
+                                class="nav-link"
+                                href="javascript:void(0);"
+                                role="button"
+                                data-toggle="dropdown"
+                                aria-expanded="false"
+                            >
+
+                                <div
+                                    style="
+                                        display: flex;
+                                        align-items: center;
+                                        gap: 10px;
+                                    "
+                                >
+
+
+                                    <!-- PROFILE ICON -->
+
+                                    <div
+                                        style="
+                                            width: 42px;
+                                            height: 42px;
+                                            min-width: 42px;
+                                            border-radius: 50%;
+                                            background: #f1f1f1;
+                                            display: flex;
+                                            align-items: center;
+                                            justify-content: center;
+                                        "
+                                    >
+
+                                        <i
+                                            class="fa fa-user"
+                                            style="
+                                                font-size: 21px;
+                                                color: #555;
+                                            "
+                                        ></i>
+
+                                    </div>
+
+
+                                    <!-- NAME + ACCESS LEVEL -->
+
+                                    <div
+                                        class="d-none d-md-block"
+                                        style="
+                                            text-align: left;
+                                            line-height: 1.2;
+                                        "
+                                    >
+
+                                        <!-- FIRST NAME -->
+
+                                        <span
+                                            style="
+                                                display: block;
+                                                font-weight: 600;
+                                                color: #333;
+                                            "
+                                        >
+
+                                            {{ auth()->user()->firstname }}
+
+                                        </span>
+
+
+                                        <!-- ACCESS LEVEL -->
+
+                                        <small
+                                            class="text-muted"
+                                            style="
+                                                text-transform: capitalize;
+                                            "
+                                        >
+
+                                            {{ auth()->user()->access_level }}
+
+                                        </small>
+
+                                    </div>
+
+
+                                    <!-- DROPDOWN ARROW -->
+
+                                    <i
+                                        class="fa fa-angle-down d-none d-md-inline"
+                                        style="
+                                            color: #777;
+                                            font-size: 14px;
+                                        "
+                                    ></i>
+
+
+                                </div>
+
+                            </a>
+
+
+
+                            <!-- =========================================
+                                 PROFILE DROPDOWN MENU
+                            ========================================== -->
+
+                            <div
+                                class="dropdown-menu dropdown-menu-right"
+                                style="
+                                    width: 280px;
+                                    padding: 0;
+                                    border: none;
+                                    border-radius: 15px;
+                                    overflow: hidden;
+                                    box-shadow:
+                                        0 6px 25px rgba(0,0,0,0.15);
+                                "
+                            >
+
+
+                                <!-- =====================================
+                                     USER INFORMATION
+                                ====================================== -->
+
+                                <div
+                                    style="
+                                        padding: 20px;
+                                        background: #f8f9fa;
+                                        border-bottom: 1px solid #eeeeee;
+                                    "
+                                >
+
+                                    <div
+                                        style="
+                                            display: flex;
+                                            align-items: center;
+                                        "
+                                    >
+
+
+                                        <!-- LARGE PROFILE ICON -->
+
+                                        <div
+                                            style="
+                                                width: 55px;
+                                                height: 55px;
+                                                min-width: 55px;
+                                                border-radius: 50%;
+                                                background: #ffffff;
+                                                display: flex;
+                                                align-items: center;
+                                                justify-content: center;
+                                                box-shadow:
+                                                    0 2px 8px
+                                                    rgba(0,0,0,0.10);
+                                            "
+                                        >
+
+                                            <i
+                                                class="fa fa-user"
+                                                style="
+                                                    font-size: 27px;
+                                                    color: #555;
+                                                "
+                                            ></i>
+
+                                        </div>
+
+
+                                        <!-- USER DETAILS -->
+
+                                        <div
+                                            style="
+                                                margin-left: 12px;
+                                                overflow: hidden;
+                                            "
+                                        >
+
+
+                                            <!-- FULL NAME -->
+
+                                            <strong
+                                                style="
+                                                    display: block;
+                                                    font-size: 15px;
+                                                    color: #333;
+                                                "
+                                            >
+
+                                                {{ auth()->user()->firstname }}
+                                                {{ auth()->user()->lastname }}
+
+                                            </strong>
+
+
+                                            <!-- EMPLOYEE ID -->
+
+                                            <small
+                                                style="
+                                                    display: block;
+                                                    color: #777;
+                                                    margin-top: 2px;
+                                                "
+                                            >
+
+                                                Employee ID:
+                                                {{ auth()->user()->employeeid }}
+
+                                            </small>
+
+
+                                            <!-- EMAIL -->
+
+                                            <small
+                                                title="{{ auth()->user()->email }}"
+                                                style="
+                                                    display: block;
+                                                    color: #777;
+                                                    margin-top: 2px;
+                                                    white-space: nowrap;
+                                                    overflow: hidden;
+                                                    text-overflow: ellipsis;
+                                                    max-width: 175px;
+                                                "
+                                            >
+
+                                                {{ auth()->user()->email }}
+
+                                            </small>
+
+
+                                        </div>
+
+                                    </div>
+
+
+
+                                    <!-- =================================
+                                         ACCESS LEVEL + STATUS
+                                    ================================== -->
+
+                                    <div
+                                        style="
+                                            margin-top: 14px;
+                                            display: flex;
+                                            gap: 6px;
+                                            flex-wrap: wrap;
+                                        "
+                                    >
+
+
+                                        <!-- ACCESS LEVEL -->
+
+                                        @if(
+                                            auth()->user()->access_level
+                                            === 'admin'
+                                        )
+
+                                            <span
+                                                class="badge badge-danger"
+                                                style="
+                                                    padding: 6px 10px;
+                                                    border-radius: 15px;
+                                                "
+                                            >
+
+                                                <i
+                                                    class="fa fa-shield mr-1"
+                                                ></i>
+
+                                                Admin
+
+                                            </span>
+
+                                        @else
+
+                                            <span
+                                                class="badge badge-primary"
+                                                style="
+                                                    padding: 6px 10px;
+                                                    border-radius: 15px;
+                                                "
+                                            >
+
+                                                <i
+                                                    class="fa fa-user mr-1"
+                                                ></i>
+
+                                                Staff
+
+                                            </span>
+
+                                        @endif
+
+
+
+                                        <!-- ACCOUNT STATUS -->
+
+                                        @if(
+                                            auth()->user()->status
+                                            === 'active'
+                                        )
+
+                                            <span
+                                                class="badge badge-success"
+                                                style="
+                                                    padding: 6px 10px;
+                                                    border-radius: 15px;
+                                                "
+                                            >
+
+                                                <i
+                                                    class="fa fa-check-circle mr-1"
+                                                ></i>
+
+                                                Active
+
+                                            </span>
+
+                                        @else
+
+                                            <span
+                                                class="badge badge-secondary"
+                                                style="
+                                                    padding: 6px 10px;
+                                                    border-radius: 15px;
+                                                "
+                                            >
+
+                                                <i
+                                                    class="fa fa-times-circle mr-1"
+                                                ></i>
+
+                                                Inactive
+
+                                            </span>
+
+                                        @endif
+
+
+                                    </div>
+
+                                </div>
+
+
+
+                                <!-- =====================================
+                                     MY PROFILE
+                                ====================================== -->
+
+                                <a
+                                    href="{{ route('profile') }}"
+                                    class="dropdown-item"
+                                    style="
+                                        padding: 14px 20px;
+                                        font-size: 14px;
+                                    "
+                                >
+
+                                    <i
+                                        class="fa fa-user mr-3"
+                                        style="
+                                            width: 18px;
+                                            text-align: center;
+                                        "
+                                    ></i>
+
+                                    My Profile
+
                                 </a>
-                            </div>
-                            <div class="dropdown-content-body">
-                                <ul>
-                                    <li class="notification-unread">
-                                        <a href="javascript:void()">
-                                            <img class="float-left mr-3 avatar-img" src="images/avatar/1.jpg" alt="">
-                                            <div class="notification-content">
-                                                <div class="notification-heading">Saiful Islam</div>
-                                                <div class="notification-timestamp">08 Hours ago</div>
-                                                <div class="notification-text">Hi Teddy, Just wanted to let you ...
-                                                </div>
-                                            </div>
-                                        </a>
-                                    </li>
-                                    <li class="notification-unread">
-                                        <a href="javascript:void()">
-                                            <img class="float-left mr-3 avatar-img" src="images/avatar/2.jpg" alt="">
-                                            <div class="notification-content">
-                                                <div class="notification-heading">Adam Smith</div>
-                                                <div class="notification-timestamp">08 Hours ago</div>
-                                                <div class="notification-text">Can you do me a favour?</div>
-                                            </div>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="javascript:void()">
-                                            <img class="float-left mr-3 avatar-img" src="images/avatar/3.jpg" alt="">
-                                            <div class="notification-content">
-                                                <div class="notification-heading">Barak Obama</div>
-                                                <div class="notification-timestamp">08 Hours ago</div>
-                                                <div class="notification-text">Hi Teddy, Just wanted to let you ...
-                                                </div>
-                                            </div>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="javascript:void()">
-                                            <img class="float-left mr-3 avatar-img" src="images/avatar/4.jpg" alt="">
-                                            <div class="notification-content">
-                                                <div class="notification-heading">Hilari Clinton</div>
-                                                <div class="notification-timestamp">08 Hours ago</div>
-                                                <div class="notification-text">Hello</div>
-                                            </div>
-                                        </a>
-                                    </li>
-                                </ul>
+
+
+
+                                <!-- DIVIDER -->
+
+                                <div
+                                    class="dropdown-divider"
+                                    style="
+                                        margin: 0;
+                                    "
+                                ></div>
+
+
+
+                                <!-- =====================================
+                                     LOGOUT
+                                ====================================== -->
+
+                                <form
+                                    action="{{ route('logout') }}"
+                                    method="POST"
+                                    style="
+                                        margin: 0;
+                                    "
+                                >
+
+                                    @csrf
+
+
+                                    <button
+                                        type="submit"
+                                        class="dropdown-item text-danger"
+                                        style="
+                                            border: none;
+                                            background: white;
+                                            padding: 14px 20px;
+                                            width: 100%;
+                                            text-align: left;
+                                            cursor: pointer;
+                                            font-size: 14px;
+                                        "
+                                    >
+
+                                        <i
+                                            class="fa fa-sign-out mr-3"
+                                            style="
+                                                width: 18px;
+                                                text-align: center;
+                                            "
+                                        ></i>
+
+                                        Logout
+
+                                    </button>
+
+                                </form>
+
 
                             </div>
-                        </div>
-                    </li>
-                    <li class="icons dropdown"><a href="javascript:void(0)" data-toggle="dropdown">
-                            <i class="mdi mdi-bell-outline"></i>
-                            <span class="badge badge-pill gradient-2">3</span>
-                        </a>
-                        <div class="drop-down animated fadeIn dropdown-menu dropdown-notfication">
-                            <div class="dropdown-content-heading d-flex justify-content-between">
-                                <span class="">2 New Notifications</span>
-                                <a href="javascript:void()" class="d-inline-block">
-                                    <span class="badge badge-pill gradient-2">5</span>
-                                </a>
-                            </div>
-                            <div class="dropdown-content-body">
-                                <ul>
-                                    <li>
-                                        <a href="javascript:void()">
-                                            <span class="mr-3 avatar-icon bg-success-lighten-2"><i
-                                                    class="icon-present"></i></span>
-                                            <div class="notification-content">
-                                                <h6 class="notification-heading">Events near you</h6>
-                                                <span class="notification-text">Within next 5 days</span>
-                                            </div>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="javascript:void()">
-                                            <span class="mr-3 avatar-icon bg-danger-lighten-2"><i
-                                                    class="icon-present"></i></span>
-                                            <div class="notification-content">
-                                                <h6 class="notification-heading">Event Started</h6>
-                                                <span class="notification-text">One hour ago</span>
-                                            </div>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="javascript:void()">
-                                            <span class="mr-3 avatar-icon bg-success-lighten-2"><i
-                                                    class="icon-present"></i></span>
-                                            <div class="notification-content">
-                                                <h6 class="notification-heading">Event Ended Successfully</h6>
-                                                <span class="notification-text">One hour ago</span>
-                                            </div>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="javascript:void()">
-                                            <span class="mr-3 avatar-icon bg-danger-lighten-2"><i
-                                                    class="icon-present"></i></span>
-                                            <div class="notification-content">
-                                                <h6 class="notification-heading">Events to Join</h6>
-                                                <span class="notification-text">After two days</span>
-                                            </div>
-                                        </a>
-                                    </li>
-                                </ul>
 
-                            </div>
-                        </div>
-                    </li> --}}
-                    {{-- <li class="icons dropdown d-none d-md-flex">
-                        <a href="javascript:void(0)" class="log-user" data-toggle="dropdown">
-                            <span>English</span> <i class="fa fa-angle-down f-s-14" aria-hidden="true"></i>
-                        </a>
-                        <div class="drop-down dropdown-language animated fadeIn  dropdown-menu">
-                            <div class="dropdown-content-body">
-                                <ul>
-                                    <li><a href="javascript:void()">English</a></li>
-                                    <li><a href="javascript:void()">Dutch</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </li> --}}
-                    {{-- <li class="icons dropdown">
-                        <div class="user-img c-pointer position-relative" data-toggle="dropdown">
-                            <span class="activity active"></span>
-                            <img src="{{asset('assets/images/user/1.png')}}" height="40" width="40" alt="">
-                        </div>
-                        <div class="drop-down dropdown-profile animated fadeIn dropdown-menu">
-                            <div class="dropdown-content-body">
-                                <ul>
-                                    <li>
-                                        <a href="app-profile.html"><i class="icon-user"></i> <span>Profile</span></a>
-                                    </li>
-                                    <li>
-                                        <a href="javascript:void()">
-                                            <i class="icon-envelope-open"></i> <span>Inbox</span>
-                                            <div class="badge gradient-3 badge-pill gradient-1">3</div>
-                                        </a>
-                                    </li>
+                        </li>
 
-                                    <hr class="my-2">
-                                    <li>
-                                        <a href="page-lock.html"><i class="icon-lock"></i> <span>Lock Screen</span></a>
-                                    </li>
-                                    <li><a href="{{url('logout')}}"><i class="icon-key"></i> <span>Logout</span></a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </li> --}}
+
+                    @endauth
+
+
                 </ul>
+
             </div>
-        </div>
+
+        </nav>
+
     </div>
-    <!--**********************************
-        Header end ti-comment-alt
-    ***********************************-->
+
+</div>
+
+<!--**********************************
+    Header end
+***********************************-->

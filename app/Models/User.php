@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -15,9 +14,7 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
+     * Mass assignable fields.
      */
     protected $fillable = [
         'firstname',
@@ -30,9 +27,7 @@ class User extends Authenticatable
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
+     * Hidden fields.
      */
     protected $hidden = [
         'password',
@@ -40,9 +35,7 @@ class User extends Authenticatable
     ];
 
     /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
+     * Field casts.
      */
     protected function casts(): array
     {
@@ -53,7 +46,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Use Employee ID as the authentication username.
+     * Use Employee ID for authentication.
      */
     public function username()
     {
@@ -61,10 +54,22 @@ class User extends Authenticatable
     }
 
     /**
-     * Get all attendance records of the user.
+     * User's full name.
+     */
+    public function getFullNameAttribute(): string
+    {
+        return trim(
+            $this->firstname . ' ' . $this->lastname
+        );
+    }
+
+    /**
+     * Attendance records.
      */
     public function attendances(): HasMany
     {
-        return $this->hasMany(Attendance::class);
+        return $this->hasMany(
+            Attendance::class
+        );
     }
 }

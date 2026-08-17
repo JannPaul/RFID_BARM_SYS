@@ -7,16 +7,17 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 
-class Student extends Model
+class Personnel extends Model
 {
     use HasFactory;
+
+    protected $table = 'personnel';
 
     protected $fillable = [
         'firstname',
         'lastname',
-        'student_number',
-        'year_level',
-        'course_program',
+        'employee_number',
+        'department',
         'rfid_tag_uid',
         'contact_information',
     ];

@@ -3,16 +3,19 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 use App\Models\Book;
 use App\Models\BookBorrow;
-use App\Models\User;
 use App\Models\Student;
+
+
 class BookController extends Controller
 {
+
     /*
     |--------------------------------------------------------------------------
-    | BOOK LIST
+    | BOOK LIST / READ
     |--------------------------------------------------------------------------
     */
 
@@ -27,36 +30,408 @@ class BookController extends Controller
 
     /*
     |--------------------------------------------------------------------------
+    | CREATE / STORE BOOK
+    |--------------------------------------------------------------------------
+    */
+
+    public function store(Request $request)
+    {
+        /*
+        |--------------------------------------------------------------------------
+        | VALIDATE
+        |--------------------------------------------------------------------------
+        */
+
+        $validated = $request->validate([
+
+            'title' => [
+                'required',
+                'string'
+            ],
+
+            'author' => [
+                'nullable',
+                'string'
+            ],
+
+            'call_number' => [
+                'nullable',
+                'string',
+                'max:255'
+            ],
+
+            'sublocation' => [
+                'nullable',
+                'string',
+                'max:255'
+            ],
+
+            'publisher' => [
+                'nullable',
+                'string'
+            ],
+
+            'year' => [
+                'nullable',
+                'string',
+                'max:20'
+            ],
+
+            'edition' => [
+                'nullable',
+                'string',
+                'max:255'
+            ],
+
+            'format' => [
+                'nullable',
+                'string'
+            ],
+
+            'content_type' => [
+                'nullable',
+                'string',
+                'max:255'
+            ],
+
+            'media_type' => [
+                'nullable',
+                'string',
+                'max:255'
+            ],
+
+            'carrier_type' => [
+                'nullable',
+                'string',
+                'max:255'
+            ],
+
+            'isbn' => [
+                'nullable',
+                'string'
+            ],
+
+            'issn' => [
+                'nullable',
+                'string'
+            ],
+
+            'lccn' => [
+                'nullable',
+                'string',
+                'max:255'
+            ],
+
+            'subjects' => [
+                'nullable',
+                'string'
+            ],
+
+            'additional_details' => [
+                'nullable',
+                'string'
+            ],
+
+        ]);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | GENERATE UNIQUE BOOK KEY
+        |--------------------------------------------------------------------------
+        |
+        | Your books table requires unique_key.
+        |
+        | Example:
+        |
+        | BOOK-000001
+        | BOOK-000002
+        |
+        */
+
+        do {
+
+            $uniqueKey =
+                'BOOK-' .
+                strtoupper(
+                    substr(
+                        md5(uniqid(mt_rand(), true)),
+                        0,
+                        8
+                    )
+                );
+
+        } while (
+            Book::where('unique_key', $uniqueKey)
+                ->exists()
+        );
+
+
+        $validated['unique_key'] = $uniqueKey;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CREATE BOOK
+        |--------------------------------------------------------------------------
+        */
+
+        Book::create($validated);
+
+
+        return redirect()
+            ->route('book')
+            ->with(
+                'success',
+                'Book added successfully.'
+            );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | UPDATE BOOK
+    |--------------------------------------------------------------------------
+    */
+
+    public function update(
+        Request $request,
+        Book $book
+    ) {
+
+        /*
+        |--------------------------------------------------------------------------
+        | VALIDATE
+        |--------------------------------------------------------------------------
+        */
+
+        $validated = $request->validate([
+
+            'title' => [
+                'required',
+                'string'
+            ],
+
+            'author' => [
+                'nullable',
+                'string'
+            ],
+
+            'call_number' => [
+                'nullable',
+                'string',
+                'max:255'
+            ],
+
+            'sublocation' => [
+                'nullable',
+                'string',
+                'max:255'
+            ],
+
+            'publisher' => [
+                'nullable',
+                'string'
+            ],
+
+            'year' => [
+                'nullable',
+                'string',
+                'max:20'
+            ],
+
+            'edition' => [
+                'nullable',
+                'string',
+                'max:255'
+            ],
+
+            'format' => [
+                'nullable',
+                'string'
+            ],
+
+            'content_type' => [
+                'nullable',
+                'string',
+                'max:255'
+            ],
+
+            'media_type' => [
+                'nullable',
+                'string',
+                'max:255'
+            ],
+
+            'carrier_type' => [
+                'nullable',
+                'string',
+                'max:255'
+            ],
+
+            'isbn' => [
+                'nullable',
+                'string'
+            ],
+
+            'issn' => [
+                'nullable',
+                'string'
+            ],
+
+            'lccn' => [
+                'nullable',
+                'string',
+                'max:255'
+            ],
+
+            'subjects' => [
+                'nullable',
+                'string'
+            ],
+
+            'additional_details' => [
+                'nullable',
+                'string'
+            ],
+
+        ]);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | UPDATE
+        |--------------------------------------------------------------------------
+        */
+
+        $book->update($validated);
+
+
+        return redirect()
+            ->route('book')
+            ->with(
+                'success',
+                'Book updated successfully.'
+            );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DELETE BOOK
+    |--------------------------------------------------------------------------
+    */
+
+    public function destroy(Book $book)
+    {
+        /*
+         * Check if this book is currently borrowed.
+         *
+         * Prevent deleting it while someone
+         * still has the book.
+         */
+
+        $currentlyBorrowed = BookBorrow::where(
+            'book_id',
+            $book->id
+        )
+            ->where(
+                'status',
+                'borrowed'
+            )
+            ->exists();
+
+
+        if ($currentlyBorrowed) {
+
+            return redirect()
+                ->route('book')
+                ->with(
+                    'fail',
+                    'This book cannot be deleted because it is currently borrowed.'
+                );
+        }
+
+
+        /*
+         * If the book has old borrowing records,
+         * deleting it may fail if your database
+         * foreign key does not use cascade.
+         *
+         * We do NOT delete borrowing history here.
+         */
+
+        $hasBorrowHistory = BookBorrow::where(
+            'book_id',
+            $book->id
+        )->exists();
+
+
+        if ($hasBorrowHistory) {
+
+            return redirect()
+                ->route('book')
+                ->with(
+                    'fail',
+                    'This book cannot be deleted because it has borrowing history.'
+                );
+        }
+
+
+        /*
+         * Delete book.
+         */
+
+        $book->delete();
+
+
+        return redirect()
+            ->route('book')
+            ->with(
+                'success',
+                'Book deleted successfully.'
+            );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
     | BORROW KIOSK PAGE
     |--------------------------------------------------------------------------
-    |
-    | This is for:
-    |
-    | /borrow
-    |
-    | It loads the available books from the books table.
-    |
     */
 
     public function borrowForm()
     {
         /*
-         * Get book IDs that are currently borrowed.
+         * Get currently borrowed Book IDs.
          */
-        $borrowedBookIds = BookBorrow::where('status', 'borrowed')
+
+        $borrowedBookIds = BookBorrow::where(
+            'status',
+            'borrowed'
+        )
             ->pluck('book_id');
 
 
         /*
-         * Only show books that are not currently borrowed.
+         * Only display available books.
          */
-        $books = Book::whereNotIn('id', $borrowedBookIds)
-            ->orderBy('title', 'asc')
+
+        $books = Book::whereNotIn(
+            'id',
+            $borrowedBookIds
+        )
+            ->orderBy(
+                'title',
+                'asc'
+            )
             ->get();
 
 
-  
-        return view('borrow', compact('books'));
+        return view(
+            'borrowkiosk',
+            compact('books')
+        );
     }
 
 
@@ -64,172 +439,167 @@ class BookController extends Controller
     |--------------------------------------------------------------------------
     | STORE BORROW
     |--------------------------------------------------------------------------
-    |
-    | Called when the user presses Confirm Borrow
-    | from borrow.blade.php.
-    |
     */
 
-   public function storeBorrow(Request $request)
-{
-    /*
-    |--------------------------------------------------------------------------
-    | VALIDATE
-    |--------------------------------------------------------------------------
-    */
-
-    $request->validate([
-        'student_id' => 'required|string',
-
-        'book_ids' => 'required|array|min:1',
-
-        'book_ids.*' => 'required|exists:books,id',
-    ]);
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | FIND STUDENT
-    |--------------------------------------------------------------------------
-    |
-    | Example:
-    |
-    | C21-0001
-    |
-    | is searched in:
-    |
-    | students.student_number
-    |
-    */
-
-    $borrower = Student::where(
-        'student_number',
-        $request->student_id
-    )->first();
-
-
-    /*
-     * Student not found.
-     */
-    if (!$borrower) {
-
-        return back()
-            ->withInput()
-            ->with(
-                'error',
-                'Student number not found.'
-            );
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | BORROW SELECTED BOOKS
-    |--------------------------------------------------------------------------
-    */
-
-    $borrowedCount = 0;
-
-
-    foreach ($request->book_ids as $bookId) {
+    public function storeBorrow(Request $request)
+    {
 
         /*
-         * Check if book is currently borrowed.
-         */
-        $alreadyBorrowed = BookBorrow::where(
-            'book_id',
-            $bookId
-        )
-            ->where('status', 'borrowed')
-            ->exists();
+        |--------------------------------------------------------------------------
+        | VALIDATE
+        |--------------------------------------------------------------------------
+        */
 
+        $request->validate([
 
-        if ($alreadyBorrowed) {
-            continue;
-        }
+            'student_id' => [
+                'required',
+                'string'
+            ],
 
+            'book_ids' => [
+                'required',
+                'array',
+                'min:1'
+            ],
 
-        /*
-         * Create borrowing transaction.
-         */
-        BookBorrow::create([
-
-            'book_id' => $bookId,
-
-            /*
-             * This is students.id.
-             *
-             * Example:
-             *
-             * students:
-             * id = 5
-             * student_number = C21-0001
-             *
-             * book_borrows:
-             * borrower_id = 5
-             */
-            'borrower_id' => $borrower->id,
-
-            'borrowed_at' => now(),
-
-            'due_date' => now()->addDays(7),
-
-            'returned_at' => null,
-
-            'status' => 'borrowed',
-
-            'remarks' => null,
+            'book_ids.*' => [
+                'required',
+                'exists:books,id'
+            ],
 
         ]);
 
 
-        $borrowedCount++;
-    }
+        /*
+        |--------------------------------------------------------------------------
+        | FIND STUDENT
+        |--------------------------------------------------------------------------
+        */
+
+        $borrower = Student::where(
+            'student_number',
+            $request->student_id
+        )->first();
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | NOTHING BORROWED
-    |--------------------------------------------------------------------------
-    */
+        if (!$borrower) {
 
-    if ($borrowedCount === 0) {
+            return back()
+                ->withInput()
+                ->with(
+                    'error',
+                    'Student number not found.'
+                );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | BORROW BOOKS
+        |--------------------------------------------------------------------------
+        */
+
+        $borrowedCount = 0;
+
+
+        foreach (
+            $request->book_ids as $bookId
+        ) {
+
+            /*
+             * Check if already borrowed.
+             */
+
+            $alreadyBorrowed =
+                BookBorrow::where(
+                    'book_id',
+                    $bookId
+                )
+                    ->where(
+                        'status',
+                        'borrowed'
+                    )
+                    ->exists();
+
+
+            if ($alreadyBorrowed) {
+
+                continue;
+            }
+
+
+            /*
+             * Create borrowing transaction.
+             */
+
+            BookBorrow::create([
+
+                'book_id' =>
+                    $bookId,
+
+                'borrower_id' =>
+                    $borrower->id,
+
+                'borrowed_at' =>
+                    now(),
+
+                'due_date' =>
+                    now()->addDays(7),
+
+                'returned_at' =>
+                    null,
+
+                'status' =>
+                    'borrowed',
+
+                'remarks' =>
+                    null,
+
+            ]);
+
+
+            $borrowedCount++;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | NOTHING BORROWED
+        |--------------------------------------------------------------------------
+        */
+
+        if ($borrowedCount === 0) {
+
+            return redirect()
+                ->route('borrow.kiosk')
+                ->with(
+                    'error',
+                    'The selected book or books are already borrowed.'
+                );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | SUCCESS
+        |--------------------------------------------------------------------------
+        */
 
         return redirect()
-            ->route('borrow')
+            ->route('borrow.kiosk')
             ->with(
-                'error',
-                'The selected book or books are already borrowed.'
+                'success',
+                $borrowedCount .
+                ' book(s) borrowed successfully.'
             );
     }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | SUCCESS
-    |--------------------------------------------------------------------------
-    */
-
-    return redirect()
-        ->route('borrow')
-        ->with(
-            'success',
-            $borrowedCount . ' book(s) borrowed successfully.'
-        );
-}
 
 
     /*
     |--------------------------------------------------------------------------
     | BOOK BORROW MONITORING
     |--------------------------------------------------------------------------
-    |
-    | This is for:
-    |
-    | /bookborrow
-    |
-    | It loads borrowing records, NOT the available books.
-    |
     */
 
     public function borrowMonitoring()
@@ -238,8 +608,14 @@ class BookController extends Controller
             'book',
             'borrower'
         ])
-            ->orderBy('due_date', 'asc')
-            ->orderBy('created_at', 'desc')
+            ->orderBy(
+                'due_date',
+                'asc'
+            )
+            ->orderBy(
+                'created_at',
+                'desc'
+            )
             ->get();
 
 
@@ -249,7 +625,6 @@ class BookController extends Controller
         );
     }
 
-    
 
     /*
     |--------------------------------------------------------------------------
@@ -259,13 +634,18 @@ class BookController extends Controller
 
     public function returnBook($id)
     {
-        $borrow = BookBorrow::findOrFail($id);
+        $borrow =
+            BookBorrow::findOrFail($id);
 
 
         /*
-         * Prevent returning the same transaction twice.
+         * Prevent duplicate returns.
          */
-        if ($borrow->status === 'returned') {
+
+        if (
+            $borrow->status ===
+            'returned'
+        ) {
 
             return redirect()
                 ->route('bookborrow')
@@ -276,10 +656,18 @@ class BookController extends Controller
         }
 
 
-        $borrow->update([
-            'status' => 'returned',
+        /*
+         * Mark returned.
+         */
 
-            'returned_at' => now(),
+        $borrow->update([
+
+            'status' =>
+                'returned',
+
+            'returned_at' =>
+                now(),
+
         ]);
 
 

@@ -11,21 +11,24 @@ return new class extends Migration
         Schema::create('attendances', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('user_id')
-                ->constrained('users')
-                ->cascadeOnDelete();
+            // Can belong to Student or2088350422
+            //  Personnel
+            $table->unsignedBigInteger('attendable_id');
+            $table->string('attendable_type');
 
+            // Date of library visit
             $table->date('date');
 
+            // Library clock in/out
             $table->dateTime('time_in')->nullable();
             $table->dateTime('time_out')->nullable();
 
             $table->timestamps();
 
-            // Optional:
-            // Prevent duplicate attendance records
-            // for the same user on the same date.
-            $table->unique(['user_id', 'date']);
+            $table->index([
+                'attendable_id',
+                'attendable_type'
+            ]);
         });
     }
 
